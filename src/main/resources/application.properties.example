@@ -1,0 +1,33 @@
+# Application Name
+spring.application.name=Internship Placement Portal
+
+# Database Configuration
+spring.datasource.url=jdbc:postgresql://localhost:5432/internship_portal
+spring.datasource.username=postgres
+spring.datasource.password=YOUR_DATABASE_PASSWORD_HERE
+spring.datasource.driver-class-name=org.postgresql.Driver
+
+# JPA/Hibernate Configuration
+spring.jpa.hibernate.ddl-auto=validate
+spring.jpa.show-sql=true
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+
+# Swagger/OpenAPI Configuration
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.enabled=true
+
+# Server Configuration
+server.port=8080
+
+# Security Configuration (Disable for now, enable when JWT is added)
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+
+# ============================================
+# INSTRUCTIONS FOR SETUP
+# ============================================
+# 1. Copy this file as: application.properties
+# 2. Update spring.datasource.password with your PostgreSQL password
+# 3. Update spring.datasource.url if your database name is different
+# 4. Make sure PostgreSQL is running on localhost:5432
+# 5. Run: mvn clean install
+# 6. Start the application
