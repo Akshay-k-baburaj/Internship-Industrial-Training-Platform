@@ -1,5 +1,7 @@
 package com.internship.portal.student;
 
+import com.internship.portal.user.User;
+import com.internship.portal.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,8 +17,15 @@ public class StudentService {
     @Autowired
     private StudentRepository studentRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     public StudentDTO createStudent(StudentDTO dto) {
+        User user = userRepository.findById(dto.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + dto.getUserId()));
+
         Student student = new Student();
+        student.setUser(user);
         student.setRollNumber(dto.getRollNumber());
         student.setFullName(dto.getFullName());
         student.setDepartment(dto.getDepartment());
@@ -87,6 +96,7 @@ public class StudentService {
     private StudentDTO mapToDTO(Student student) {
         StudentDTO dto = new StudentDTO();
         dto.setId(student.getId());
+        dto.setUserId(student.getUser().getId());
         dto.setRollNumber(student.getRollNumber());
         dto.setFullName(student.getFullName());
         dto.setDepartment(student.getDepartment());

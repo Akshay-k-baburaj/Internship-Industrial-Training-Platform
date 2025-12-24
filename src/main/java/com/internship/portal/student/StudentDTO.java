@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 public class StudentDTO {
     private Long id;
+    private Long userId;
     private String rollNumber;
     private String fullName;
     private String department;

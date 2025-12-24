@@ -1,5 +1,6 @@
 package com.internship.portal.opportunity;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/opportunities")
+@Tag(name = "Opportunities", description = "Opportunity management endpoints")
 @Slf4j
 public class OpportunityController {
 
