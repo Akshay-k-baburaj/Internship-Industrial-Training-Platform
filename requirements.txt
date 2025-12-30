@@ -1,0 +1,178 @@
+# ============================================
+# System Requirements for Internship & Industrial Training Platform
+# ============================================
+#
+# NOTE: This is a Java/Spring Boot project. Dependencies are managed via Maven (pom.xml).
+# This file lists system requirements and optional development tools.
+#
+# ============================================
+# CORE REQUIREMENTS
+# ============================================
+
+# Java Development Kit (JDK)
+# Version: 23 or higher
+# Download: https://www.oracle.com/java/technologies/downloads/
+# Or use OpenJDK: https://adoptium.net/
+java>=23
+
+# Apache Maven
+# Version: 3.6.0 or higher
+# Download: https://maven.apache.org/download.cgi
+# Note: Maven Wrapper (mvnw/mvnw.cmd) is included in the project
+maven>=3.6.0
+
+# PostgreSQL Database
+# Version: 12 or higher (for production)
+# Download: https://www.postgresql.org/download/
+# Alternative: H2 Database (included as dependency for development)
+postgresql>=12.0
+
+# ============================================
+# OPTIONAL DEVELOPMENT TOOLS
+# ============================================
+
+# Git (for version control)
+# Version: 2.0 or higher
+# Download: https://git-scm.com/downloads
+git>=2.0
+
+# IDE (Choose one)
+# - IntelliJ IDEA: https://www.jetbrains.com/idea/
+# - Eclipse IDE: https://www.eclipse.org/downloads/
+# - VS Code: https://code.visualstudio.com/ (with Java extensions)
+
+# PostgreSQL Client Tools (Optional)
+# - pgAdmin: https://www.pgadmin.org/
+# - DBeaver: https://dbeaver.io/
+# - psql command-line tool (included with PostgreSQL)
+
+# API Testing Tools (Optional)
+# - Postman: https://www.postman.com/downloads/
+# - Insomnia: https://insomnia.rest/download
+# - curl (usually pre-installed on Linux/macOS)
+
+# ============================================
+# MAVEN DEPENDENCIES (Managed via pom.xml)
+# ============================================
+# The following dependencies are automatically managed by Maven.
+# They are listed here for reference only.
+#
+# Spring Boot: 4.0.0
+# - spring-boot-starter-webmvc
+# - spring-boot-starter-data-jpa
+# - spring-boot-starter-data-jdbc
+# - spring-boot-starter-security
+# - spring-boot-starter-validation
+# - spring-boot-devtools
+#
+# Database Drivers:
+# - PostgreSQL JDBC Driver
+# - H2 Database (for development/testing)
+#
+# Utilities:
+# - Lombok (for reducing boilerplate code)
+# - SpringDoc OpenAPI (for API documentation)
+#
+# Testing:
+# - spring-boot-starter-test (includes JUnit, Mockito, etc.)
+#
+# ============================================
+# INSTALLATION INSTRUCTIONS
+# ============================================
+#
+# 1. Install JDK 23:
+#    - Windows: Download from Oracle or use Chocolatey: choco install openjdk23
+#    - Linux: sudo apt-get install openjdk-23-jdk (Ubuntu/Debian)
+#             sudo yum install java-23-openjdk-devel (RHEL/CentOS)
+#    - macOS: brew install openjdk@23
+#
+# 2. Verify Java installation:
+#    java -version
+#    javac -version
+#
+# 3. Install Maven (if not using Maven Wrapper):
+#    - Windows: Download from Apache or use Chocolatey: choco install maven
+#    - Linux: sudo apt-get install maven
+#    - macOS: brew install maven
+#
+# 4. Verify Maven installation:
+#    mvn -version
+#
+# 5. Install PostgreSQL:
+#    - Windows: Download installer from PostgreSQL website
+#    - Linux: sudo apt-get install postgresql postgresql-contrib
+#    - macOS: brew install postgresql
+#
+# 6. Start PostgreSQL service:
+#    - Windows: Use Services panel or: net start postgresql-x64-XX
+#    - Linux: sudo systemctl start postgresql
+#    - macOS: brew services start postgresql
+#
+# 7. Create database:
+#    psql -U postgres
+#    CREATE DATABASE internship_portal;
+#    \q
+#
+# 8. Run database schema:
+#    psql -U postgres -d internship_portal -f Database/schema.sql
+#
+# ============================================
+# ENVIRONMENT VARIABLES (Optional)
+# ============================================
+#
+# JAVA_HOME=/path/to/jdk
+# MAVEN_HOME=/path/to/maven (if not using wrapper)
+# PATH should include $JAVA_HOME/bin and $MAVEN_HOME/bin
+#
+# ============================================
+# DOCKER ALTERNATIVE (Optional)
+# ============================================
+#
+# If you prefer using Docker:
+# - Docker: https://www.docker.com/get-started
+# - Docker Compose: Included with Docker Desktop
+#
+# Example docker-compose.yml for PostgreSQL:
+# version: '3.8'
+# services:
+#   postgres:
+#     image: postgres:15
+#     environment:
+#       POSTGRES_DB: internship_portal
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD: yourpassword
+#     ports:
+#       - "5432:5432"
+#
+# ============================================
+# VERIFICATION CHECKLIST
+# ============================================
+#
+# [ ] Java 23 installed and JAVA_HOME set
+# [ ] Maven installed or Maven Wrapper available
+# [ ] PostgreSQL installed and running
+# [ ] Database 'internship_portal' created
+# [ ] Schema.sql executed successfully
+# [ ] application.properties configured
+# [ ] Project builds successfully (mvn clean install)
+# [ ] Application starts without errors
+# [ ] Swagger UI accessible at http://localhost:8080/swagger-ui.html
+#
+# ============================================
+# TROUBLESHOOTING
+# ============================================
+#
+# Issue: "Java version not found"
+# Solution: Verify JAVA_HOME environment variable is set correctly
+#
+# Issue: "Maven command not found"
+# Solution: Use Maven Wrapper (./mvnw or mvnw.cmd) or add Maven to PATH
+#
+# Issue: "Cannot connect to database"
+# Solution: Verify PostgreSQL is running and credentials in application.properties are correct
+#
+# Issue: "Port 8080 already in use"
+# Solution: Change server.port in application.properties or stop the conflicting service
+#
+# ============================================
+
