@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -26,6 +27,7 @@ public class AuthController {
 
     private final AuthService authService;
     private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Create a new user account")
@@ -75,5 +77,11 @@ public class AuthController {
     @Operation(summary = "Validate token", description = "Check if current token is valid")
     public ResponseEntity<MessageResponse> validateToken() {
         return ResponseEntity.ok(new MessageResponse("Token is valid"));
+    }
+
+    @GetMapping("/hash-password")
+    @Operation(summary = "Hash Password (DEBUG)", description = "Generate BCrypt hash for debugging")
+    public ResponseEntity<String> hashPassword(@RequestParam String password) {
+        return ResponseEntity.ok(passwordEncoder.encode(password));
     }
 }

@@ -1,45 +1,55 @@
-import api from './api';
+import axios from 'axios';
 
-const login = async (email, password) => {
-    const response = await api.post('/auth/login', {
-        email,
-        password,
-    });
-    if (response.data.accessToken) {
-        localStorage.setItem('token', response.data.accessToken);
-        localStorage.setItem('user', JSON.stringify(response.data));
-    }
-    return response.data;
+const API_URL = 'http://localhost:8080/api/v1/auth/';
+
+const register = (email, password, role) => {
+    return axios
+        .post(API_URL + 'register', {
+            email,
+            password,
+            role,
+        })
+        .then((response) => {
+            if (response.data.access_token) {
+                localStorage.setItem('user', JSON.stringify(response.data));
+            }
+            return response.data;
+        });
 };
 
-const register = async (email, password, role) => {
-    const response = await api.post('/auth/register', {
-        email,
-        password,
-        role,
-    });
-    if (response.data.accessToken) {
-        localStorage.setItem('token', response.data.accessToken);
-        localStorage.setItem('user', JSON.stringify(response.data));
-    }
-    return response.data;
+const login = (email, password) => {
+    return axios
+        .post(API_URL + 'login', {
+            email,
+            password,
+        })
+        .then((response) => {
+            if (response.data.access_token) {
+                localStorage.setItem('user', JSON.stringify(response.data));
+            }
+            return response.data;
+        });
 };
 
 const logout = () => {
-    localStorage.removeItem('token');
     localStorage.removeItem('user');
-    window.location.href = '/login';
 };
 
 const getCurrentUser = () => {
     return JSON.parse(localStorage.getItem('user'));
 };
 
+const getToken = () => {
+    const user = getCurrentUser();
+    return user?.access_token || null;
+};
+
 const AuthService = {
-    login,
     register,
+    login,
     logout,
     getCurrentUser,
+    getToken,
 };
 
 export default AuthService;

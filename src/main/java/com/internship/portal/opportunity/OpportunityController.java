@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/opportunities")
+@RequestMapping("/api/v1/opportunities")
 @Tag(name = "Opportunities", description = "Opportunity management endpoints")
 @Slf4j
 public class OpportunityController {

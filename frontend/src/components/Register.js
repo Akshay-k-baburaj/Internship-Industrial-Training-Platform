@@ -5,7 +5,7 @@ import { useNavigate, Link } from 'react-router-dom';
 const Register = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState('STUDENT');
+    const [role] = useState('STUDENT');
     const [error, setError] = useState('');
     const navigate = useNavigate();
 
@@ -47,15 +47,12 @@ const Register = () => {
                 </div>
                 <div>
                     <label>Role:</label>
-                    <select
-                        value={role}
-                        onChange={(e) => setRole(e.target.value)}
+                    <input
+                        type="text"
+                        value="Student"
+                        disabled
                         style={{ width: '100%', padding: '8px', margin: '5px 0' }}
-                    >
-                        <option value="STUDENT">Student</option>
-                        <option value="FACULTY">Faculty</option>
-                        <option value="PLACEMENT_CELL">Placement Cell</option>
-                    </select>
+                    />
                 </div>
 
                 {error && <p style={{ color: 'red' }}>{error}</p>}

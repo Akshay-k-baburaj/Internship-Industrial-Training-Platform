@@ -7,6 +7,7 @@ import lombok.*;
 @AllArgsConstructor
 public class FacultyDTO {
     private Long id;
+    private Long userId;
     private String employeeId;
     private String fullName;
     private String department;

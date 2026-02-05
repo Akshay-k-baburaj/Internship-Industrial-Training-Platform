@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/applications")
+@RequestMapping("/api/v1/applications")
 @Slf4j
 public class ApplicationController {
 
@@ -18,8 +18,9 @@ public class ApplicationController {
     @PostMapping("/apply")
     public ResponseEntity<ApplicationDTO> applyForOpportunity(
             @RequestParam Long studentId,
-            @RequestParam Long opportunityId) {
-        return ResponseEntity.ok(applicationService.applyForOpportunity(studentId, opportunityId));
+            @RequestParam Long opportunityId,
+            @RequestParam(required = false) Long facultyId) {
+        return ResponseEntity.ok(applicationService.applyForOpportunity(studentId, opportunityId, facultyId));
     }
 
     @GetMapping("/opportunity/{opportunityId}")
@@ -50,8 +51,7 @@ public class ApplicationController {
     }
 
     @GetMapping("/pending-approvals")
-    public ResponseEntity<List<ApplicationDTO>> getPendingFacultyApprovals() {
-        return ResponseEntity.ok(applicationService.getPendingFacultyApprovals());
+    public ResponseEntity<List<ApplicationDTO>> getPendingFacultyApprovals(@RequestParam(required = false) Long facultyId) {
+        return ResponseEntity.ok(applicationService.getPendingFacultyApprovals(facultyId));
     }
 }
-

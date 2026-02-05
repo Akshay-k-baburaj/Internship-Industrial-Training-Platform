@@ -49,6 +49,9 @@ public class StudentService {
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
         student.setFullName(dto.getFullName());
+        student.setRollNumber(dto.getRollNumber()); // Allow updating roll number if needed
+        student.setDepartment(dto.getDepartment()); // FIX: Update Department
+        student.setSemester(dto.getSemester()); // FIX: Update Semester
         student.setCgpa(dto.getCgpa());
         student.setPhone(dto.getPhone());
         student.setSkills(dto.getSkills());

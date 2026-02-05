@@ -1,5 +1,6 @@
 package com.internship.portal.opportunity;
 
+import com.internship.portal.user.Role;
 import com.internship.portal.user.User;
 import com.internship.portal.user.UserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -79,7 +80,13 @@ public class OpportunityService {
         Opportunity opportunity = opportunityRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opportunity not found"));
 
-        if (!opportunity.getPostedBy().getId().equals(postedById)) {
+        User requester = userRepository.findById(postedById)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        boolean isOwner = opportunity.getPostedBy().getId().equals(postedById);
+        boolean isAdmin = requester.getRole() == Role.ADMIN;
+
+        if (!isOwner && !isAdmin) {
             throw new RuntimeException("Unauthorized to delete this opportunity");
         }
 

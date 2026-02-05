@@ -12,6 +12,7 @@ public class ApplicationDTO {
     private Long id;
     private Long studentId;
     private Long opportunityId;
+    private Long facultyId;
     private ApplicationStatus status;
     private FacultyApprovalStatus facultyApprovalStatus;
     private String remarks;

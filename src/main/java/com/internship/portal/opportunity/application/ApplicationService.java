@@ -33,7 +33,7 @@ public class ApplicationService {
     @Autowired
     private FacultyRepository facultyRepository;
 
-    public ApplicationDTO applyForOpportunity(Long studentId, Long opportunityId) {
+    public ApplicationDTO applyForOpportunity(Long studentId, Long opportunityId, Long facultyId) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
@@ -44,7 +44,9 @@ public class ApplicationService {
             throw new RuntimeException("Already applied for this opportunity");
         }
 
-        if (student.getCgpa().compareTo(opportunity.getRequiredCgpa()) < 0) {
+        if (opportunity.getRequiredCgpa() != null
+                && student.getCgpa() != null
+                && student.getCgpa().compareTo(opportunity.getRequiredCgpa()) < 0) {
             throw new RuntimeException("CGPA not sufficient");
         }
 
@@ -53,6 +55,11 @@ public class ApplicationService {
         application.setOpportunity(opportunity);
         application.setStatus(ApplicationStatus.APPLIED);
         application.setFacultyApprovalStatus(FacultyApprovalStatus.PENDING);
+        if (facultyId != null) {
+            Faculty faculty = facultyRepository.findById(facultyId)
+                    .orElseThrow(() -> new RuntimeException("Faculty not found"));
+            application.setApprovedByFaculty(faculty);
+        }
         application.setAppliedAt(LocalDateTime.now());
         application.setUpdatedAt(LocalDateTime.now());
 
@@ -96,6 +103,11 @@ public class ApplicationService {
         Faculty faculty = facultyRepository.findById(facultyId)
                 .orElseThrow(() -> new RuntimeException("Faculty not found"));
 
+        if (application.getApprovedByFaculty() != null
+                && !application.getApprovedByFaculty().getId().equals(facultyId)) {
+            throw new RuntimeException("Unauthorized to approve this application");
+        }
+
         application.setApprovedByFaculty(faculty);
         application.setFacultyApprovalStatus(approved ? FacultyApprovalStatus.APPROVED : FacultyApprovalStatus.REJECTED);
         application.setRemarks(remarks);
@@ -105,8 +117,15 @@ public class ApplicationService {
         return mapToDTO(updated);
     }
 
-    public List<ApplicationDTO> getPendingFacultyApprovals() {
-        return applicationRepository.findByFacultyApprovalStatusAndApprovedByFacultyNull(FacultyApprovalStatus.PENDING)
+    public List<ApplicationDTO> getPendingFacultyApprovals(Long facultyId) {
+        if (facultyId == null) {
+            return applicationRepository.findByFacultyApprovalStatusAndApprovedByFacultyNull(FacultyApprovalStatus.PENDING)
+                    .stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+        }
+
+        return applicationRepository.findByFacultyApprovalStatusAndApprovedByFacultyId(FacultyApprovalStatus.PENDING, facultyId)
                 .stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
@@ -117,6 +136,7 @@ public class ApplicationService {
         dto.setId(application.getId());
         dto.setStudentId(application.getStudent().getId());
         dto.setOpportunityId(application.getOpportunity().getId());
+        dto.setFacultyId(application.getApprovedByFaculty() != null ? application.getApprovedByFaculty().getId() : null);
         dto.setStatus(application.getStatus());
         dto.setFacultyApprovalStatus(application.getFacultyApprovalStatus());
         dto.setRemarks(application.getRemarks());
