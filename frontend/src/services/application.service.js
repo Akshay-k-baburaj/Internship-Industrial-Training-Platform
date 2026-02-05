@@ -35,8 +35,16 @@ class ApplicationService {
 
     getPendingFacultyApprovals(facultyId) {
         const token = AuthService.getToken();
-        return axios.get(`${API_URL}/pending-approvals`, {
-            params: { facultyId },
+        return axios.get(`${API_URL}/pending-faculty/${facultyId}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+    }
+
+    getApplicationsByDepartment(department) {
+        const token = AuthService.getToken();
+        return axios.get(`${API_URL}/department/${department}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -52,6 +60,17 @@ class ApplicationService {
             }
         });
     }
+
+    updateApplicationStatus(applicationId, status, placementCellId) {
+        const token = AuthService.getToken();
+        return axios.put(`${API_URL}/${applicationId}/status`, null, {
+            params: { status, placementCellId },
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+    }
 }
 
-export default new ApplicationService();
+const applicationServiceInstance = new ApplicationService();
+export default applicationServiceInstance;

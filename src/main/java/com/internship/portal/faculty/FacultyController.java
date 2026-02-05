@@ -15,33 +15,33 @@ public class FacultyController {
     private FacultyService facultyService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<FacultyDTO> getFacultyById(@PathVariable Long id) {
+    public ResponseEntity<FacultyDTO> getFacultyById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(facultyService.getFacultyById(id));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<FacultyDTO> getFacultyByUserId(@PathVariable Long userId) {
+    public ResponseEntity<FacultyDTO> getFacultyByUserId(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(facultyService.getFacultyByUserId(userId));
     }
 
     @PostMapping
     public ResponseEntity<FacultyDTO> createFaculty(
             @RequestBody FacultyDTO dto,
-            @RequestParam Long userId) {
+            @RequestParam("userId") Long userId) {
         dto.setUserId(userId);
         return ResponseEntity.ok(facultyService.createFaculty(dto));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<FacultyDTO> updateFaculty(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody FacultyDTO dto,
-            @RequestParam Long userId) {
+            @RequestParam("userId") Long userId) {
         return ResponseEntity.ok(facultyService.updateFaculty(id, dto, userId));
     }
 
     @GetMapping("/department/{department}")
-    public ResponseEntity<List<FacultyDTO>> getFacultyByDepartment(@PathVariable String department) {
+    public ResponseEntity<List<FacultyDTO>> getFacultyByDepartment(@PathVariable("department") String department) {
         return ResponseEntity.ok(facultyService.getFacultyByDepartment(department));
     }
 }

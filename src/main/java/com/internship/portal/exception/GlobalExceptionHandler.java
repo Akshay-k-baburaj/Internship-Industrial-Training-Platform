@@ -173,6 +173,8 @@ public class GlobalExceptionHandler {
         public ResponseEntity<ErrorResponse> handleGlobalException(
                         Exception ex, HttpServletRequest request) {
                 log.error("Unexpected error occurred: ", ex);
+                // Ensure stack trace is printed to console for debugging
+                ex.printStackTrace();
 
                 ErrorResponse error = new ErrorResponse(
                                 LocalDateTime.now(),

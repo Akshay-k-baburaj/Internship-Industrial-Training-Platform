@@ -5,7 +5,6 @@ import OpportunityService from '../services/opportunity.service';
 import UserService from '../services/user.service';
 import ApplicationService from '../services/application.service';
 import AuthService from '../services/auth.service';
-import FacultyService from '../services/faculty.service';
 
 const PageWrapper = styled.div`
   min-height: 100vh;
@@ -287,10 +286,6 @@ const Opportunities = () => {
   const [myApplications, setMyApplications] = useState([]);
   const [applying, setApplying] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [facultyOptions, setFacultyOptions] = useState([]);
-  const [selectedFacultyId, setSelectedFacultyId] = useState('');
-  const [facultyLoading, setFacultyLoading] = useState(false);
-  const [facultyError, setFacultyError] = useState('');
 
   const currentUser = AuthService.getCurrentUser();
 
@@ -326,34 +321,9 @@ const Opportunities = () => {
     };
 
     fetchData();
-  }, []);
+  }, [currentUser]);
 
-  useEffect(() => {
-    const loadFacultyOptions = async () => {
-      if (!studentProfile?.department) return;
-      setFacultyLoading(true);
-      setFacultyError('');
-      try {
-        const res = await FacultyService.getFacultyByDepartment(studentProfile.department);
-        setFacultyOptions(res.data || []);
-      } catch (err) {
-        console.error("Could not fetch faculty list", err);
-        setFacultyError('Unable to load faculty list.');
-      } finally {
-        setFacultyLoading(false);
-      }
-    };
-
-    loadFacultyOptions();
-  }, [studentProfile?.department]);
-
-  useEffect(() => {
-    if (facultyOptions.length > 0) {
-      setSelectedFacultyId(String(facultyOptions[0].id));
-    } else {
-      setSelectedFacultyId('');
-    }
-  }, [facultyOptions]);
+  // Faculty fetching logic removed due to security restrictions
 
   // Check if current student has applied to an opportunity
   const hasApplied = (oppId) => {
@@ -371,7 +341,8 @@ const Opportunities = () => {
 
     setApplying(true);
     try {
-      await ApplicationService.apply(studentProfile.id, selectedOpp.id, selectedFacultyId);
+      // Pass null for facultyId since we can't select it
+      await ApplicationService.apply(studentProfile.id, selectedOpp.id, null);
       alert('Application Submitted Successfully!');
 
       // Refresh applications list
@@ -573,28 +544,10 @@ const Opportunities = () => {
 
               {currentUser?.role === 'STUDENT' && (
                 <div className="section">
-                  <h4>Faculty Recommendation</h4>
-                  {facultyLoading && <p>Loading faculty list...</p>}
-                  {facultyError && <p style={{ color: 'red' }}>{facultyError}</p>}
-                  {!facultyLoading && facultyOptions.length === 0 && (
-                    <p>No faculty found for your department. You can still apply.</p>
-                  )}
-                  {!facultyLoading && facultyOptions.length > 0 && (
-                    <div className="form-card full">
-                      <label>Select Faculty (Optional)</label>
-                      <select
-                        value={selectedFacultyId}
-                        onChange={(e) => setSelectedFacultyId(e.target.value)}
-                      >
-                        <option value="">No preference</option>
-                        {facultyOptions.map((fac) => (
-                          <option key={fac.id} value={fac.id}>
-                            {fac.fullName} ({fac.department})
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+                  {/* Faculty selection removed due to security restrictions */}
+                  <p style={{ fontSize: '0.85rem', color: '#6b7280', fontStyle: 'italic' }}>
+                    Note: A faculty mentor will be assigned to you after applying.
+                  </p>
                 </div>
               )}
 

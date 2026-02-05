@@ -12,39 +12,39 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.List;
+import java.util.Arrays;
 
 @Configuration
 public class OpenApiConfig {
 
-    @Value("${app.backend.url}")
-    private String backendUrl;
+        @Value("${app.backend.url}")
+        private String backendUrl;
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Internship Industrial Training Platform API")
-                        .version("1.0.0")
-                        .description(
-                                "RESTful API for managing internships, industrial training, and placement activities")
-                        .contact(new Contact()
-                                .name("Development Team")
-                                .email("support@internshipportal.com"))
-                        .license(new License()
-                                .name("MIT License")
-                                .url("https://opensource.org/licenses/MIT")))
-                .servers(List.of(
-                        new Server()
-                                .url(backendUrl)
-                                .description("Development Server")))
-                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-                .components(new Components()
-                        .addSecuritySchemes("Bearer Authentication",
-                                new SecurityScheme()
-                                        .type(SecurityScheme.Type.HTTP)
-                                        .scheme("bearer")
-                                        .bearerFormat("JWT")
-                                        .description("Enter JWT token")));
-    }
+        @Bean
+        public OpenAPI customOpenAPI() {
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("Internship Industrial Training Platform API")
+                                                .version("1.0.0")
+                                                .description(
+                                                                "RESTful API for managing internships, industrial training, and placement activities")
+                                                .contact(new Contact()
+                                                                .name("Development Team")
+                                                                .email("support@internshipportal.com"))
+                                                .license(new License()
+                                                                .name("MIT License")
+                                                                .url("https://opensource.org/licenses/MIT")))
+                                .servers(Arrays.asList(
+                                                new Server()
+                                                                .url(backendUrl)
+                                                                .description("Development Server")))
+                                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                                .components(new Components()
+                                                .addSecuritySchemes("Bearer Authentication",
+                                                                new SecurityScheme()
+                                                                                .type(SecurityScheme.Type.HTTP)
+                                                                                .scheme("bearer")
+                                                                                .bearerFormat("JWT")
+                                                                                .description("Enter JWT token")));
+        }
 }

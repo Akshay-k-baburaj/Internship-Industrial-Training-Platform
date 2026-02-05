@@ -11,7 +11,16 @@ import java.time.LocalDateTime;
 public class ApplicationDTO {
     private Long id;
     private Long studentId;
+    private String studentName;
+    private String studentEmail;
+    private String studentRollNumber;
+    private String studentDepartment;
+    private java.math.BigDecimal studentCgpa;
+
     private Long opportunityId;
+    private String opportunityTitle;
+    private String companyName;
+
     private Long facultyId;
     private ApplicationStatus status;
     private FacultyApprovalStatus facultyApprovalStatus;

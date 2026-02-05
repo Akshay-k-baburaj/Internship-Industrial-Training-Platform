@@ -25,10 +25,15 @@ const updateStudentProfile = (id, data) => {
     return axios.put(API_URL + id, data, { headers: authHeader() });
 };
 
+const getStudentsByDepartment = (department) => {
+    return axios.get(API_URL + 'department/' + department, { headers: authHeader() });
+};
+
 const UserService = {
     getStudentProfile,
     createStudentProfile,
     updateStudentProfile,
+    getStudentsByDepartment,
 };
 
 export default UserService;

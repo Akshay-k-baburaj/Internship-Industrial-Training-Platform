@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import Button from '../components/ui/Button';
 import AuthService from '../services/auth.service';
@@ -84,12 +84,13 @@ const Profile = () => {
         cgpa: '',
         phone: '',
         skills: '',
+        resumeUrl: '',
         githubUrl: '',
         linkedinUrl: '',
         portfolioUrl: ''
     });
 
-    const currentUser = AuthService.getCurrentUser();
+    const currentUser = useMemo(() => AuthService.getCurrentUser(), []);
 
     useEffect(() => {
         const fetchProfile = (userId) => {
@@ -105,6 +106,7 @@ const Profile = () => {
                         cgpa: response.data.cgpa || '',
                         phone: response.data.phone || '',
                         skills: response.data.skills || '',
+                        resumeUrl: response.data.resumeUrl || '',
                         githubUrl: response.data.githubUrl || '',
                         linkedinUrl: response.data.linkedinUrl || '',
                         portfolioUrl: response.data.portfolioUrl || ''
@@ -128,7 +130,7 @@ const Profile = () => {
         if (currentUser && currentUser.id) {
             fetchProfile(currentUser.id);
         }
-    }, [currentUser?.id]);
+    }, [currentUser, currentUser?.id]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -248,6 +250,15 @@ const Profile = () => {
                                     name="portfolioUrl"
                                     placeholder="https://yourportfolio.com"
                                     value={formData.portfolioUrl}
+                                    onChange={handleInputChange}
+                                />
+                            </FieldGroup>
+                            <FieldGroup>
+                                <label>Resume URL (Google Drive/Dropbox Link)</label>
+                                <input
+                                    name="resumeUrl"
+                                    placeholder="https://drive.google.com/..."
+                                    value={formData.resumeUrl}
                                     onChange={handleInputChange}
                                 />
                             </FieldGroup>

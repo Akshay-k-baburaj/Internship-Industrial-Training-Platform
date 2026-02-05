@@ -198,11 +198,14 @@ const Dashboard = () => {
   const [approvalsOpen, setApprovalsOpen] = useState(false);
   const [remarksByApp, setRemarksByApp] = useState({});
   const [facultyDeptOpps, setFacultyDeptOpps] = useState(0);
+  const [studentsSupervised, setStudentsSupervised] = useState(0);
+  const [deptApplications, setDeptApplications] = useState([]);
   const [appsOpen, setAppsOpen] = useState(false);
   const [appsLoading, setAppsLoading] = useState(false);
   const [appsError, setAppsError] = useState('');
   const [appsData, setAppsData] = useState([]);
   const [studentApplicationsCount, setStudentApplicationsCount] = useState(0);
+  const [analyticsOpen, setAnalyticsOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -239,10 +242,17 @@ const Dashboard = () => {
     }
   }, [navigate]);
 
+  const [studentApps, setStudentApps] = useState([]);
+  const [studentAppsOpen, setStudentAppsOpen] = useState(false);
+
   useEffect(() => {
     if (!profile?.id || user?.role !== 'STUDENT') return;
     ApplicationService.getStudentApplications(profile.id)
-      .then(res => setStudentApplicationsCount((res.data || []).length))
+      .then(res => {
+        const apps = res.data || [];
+        setStudentApps(apps);
+        setStudentApplicationsCount(apps.length);
+      })
       .catch(err => console.error("Could not fetch student applications count", err));
   }, [profile?.id, user?.role]);
 
@@ -282,6 +292,29 @@ const Dashboard = () => {
 
     loadFacultySummary();
   }, [user?.role, facultyProfile?.department]);
+
+  // Handle Placement Cell Decision (Mark Placed / Reject)
+  const handlePlacementDecision = async (applicationId, isPlaced) => {
+    try {
+      const status = isPlaced ? 'SELECTED' : 'REJECTED';
+      await ApplicationService.updateApplicationStatus(applicationId, status, user.id);
+
+      // Refresh the list locally
+      setAppsData(prev => prev.map(item => {
+        if (item.application.id === applicationId) {
+          return {
+            ...item,
+            application: { ...item.application, status: status }
+          };
+        }
+        return item;
+      }));
+
+    } catch (err) {
+      console.error("Failed to update status", err);
+      alert("Failed to update application status.");
+    }
+  };
 
   const handleLogout = () => {
     AuthService.logout();
@@ -331,6 +364,29 @@ const Dashboard = () => {
                     <div className="meta">CGPA: {item.student?.cgpa || 'N/A'}</div>
                     <div className="meta">Applied To: {item.opportunity?.title || 'Opportunity'}</div>
                     <div className="meta">Company: {item.opportunity?.companyName || 'N/A'}</div>
+                    <div className="meta" style={{ marginTop: '0.5rem' }}>
+                      Status: <strong style={{
+                        color: item.application.status === 'SELECTED' ? '#1e40af' : item.application.status === 'REJECTED' ? '#991b1b' : (item.application.facultyApprovalStatus === 'APPROVED' ? '#065f46' : '#92400e')
+                      }}>{item.application.status === 'SELECTED' ? 'Placed' : item.application.status === 'REJECTED' ? 'Rejected' : (item.application.facultyApprovalStatus === 'APPROVED' ? 'Accepted' : item.application.status)}</strong>
+                    </div>
+                    {item.application.status !== 'SELECTED' && item.application.status !== 'REJECTED' && (
+                      <ActionRow style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
+                        <Button
+                          variant="primary"
+                          style={{ flex: 1, backgroundColor: '#10b981', borderColor: '#10b981' }}
+                          onClick={() => handlePlacementDecision(item.application.id, true)}
+                        >
+                          Mark Placed
+                        </Button>
+                        <Button
+                          variant="outline"
+                          style={{ flex: 1, color: '#ef4444', borderColor: '#ef4444' }}
+                          onClick={() => handlePlacementDecision(item.application.id, false)}
+                        >
+                          Mark Unplaced
+                        </Button>
+                      </ActionRow>
+                    )}
                   </AppCard>
                 ))}
               </AppList>
@@ -409,6 +465,59 @@ const Dashboard = () => {
     }
   }
 
+
+
+  // Analytics Modal
+  function renderAnalyticsModal() {
+    if (!analyticsOpen || user?.role !== 'PLACEMENT_CELL') return null;
+
+    const stats = placementStats || {};
+    const avgCgpa = stats.avgCgpa ? parseFloat(stats.avgCgpa).toFixed(2) : 'N/A';
+    const uniqueStudents = stats.totalStudentsApplied || 0;
+    const placed = stats.selectedStudents || 0;
+    const placementRate = uniqueStudents > 0 ? ((placed / uniqueStudents) * 100).toFixed(1) : 0;
+
+    return (
+      <ModalOverlay onClick={() => setAnalyticsOpen(false)}>
+        <ModalContent onClick={e => e.stopPropagation()} style={{ maxWidth: '600px' }}>
+          <CloseButton onClick={() => setAnalyticsOpen(false)}>&times;</CloseButton>
+          <span className="company-badge" style={{ backgroundColor: '#8b5cf6' }}>Analytics</span>
+          <h2>Placement Overview</h2>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+            <div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total Students Placed</div>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#10b981' }}>
+                {placed} <span style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: 'normal' }}>/ {uniqueStudents}</span>
+              </div>
+              <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.5rem' }}>
+                {placementRate}% Placement Rate
+              </div>
+            </div>
+
+            <div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Average CGPA</div>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#3b82f6' }}>{avgCgpa}</div>
+              <div style={{ fontSize: '0.8rem', color: '#64748b', marginTop: '0.5rem' }}>
+                Of placed students
+              </div>
+            </div>
+
+            <div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Total Applications</div>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#f59e0b' }}>{stats.totalApplications || 0}</div>
+            </div>
+
+            <div style={{ padding: '1.5rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+              <div style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.5rem' }}>Active Opportunities</div>
+              <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#6366f1' }}>{stats.totalOpportunities || 0}</div>
+            </div>
+          </div>
+        </ModalContent>
+      </ModalOverlay>
+    );
+  }
+
   // Admin Dashboard
   function renderAdminDashboard() {
     return (
@@ -456,6 +565,9 @@ const Dashboard = () => {
           <Button variant="primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => navigate('/opportunities')}>
             Post New Opportunity
           </Button>
+          <Button variant="outline" style={{ width: '100%', justifyContent: 'center', marginTop: '0.75rem' }} onClick={() => setAnalyticsOpen(true)}>
+            View Analytics
+          </Button>
         </DashboardCard>
 
         <DashboardCard $clickable onClick={openApplicationsModal}>
@@ -474,6 +586,7 @@ const Dashboard = () => {
           <h3>Upcoming Deadlines</h3>
           <p>No opportunities closing soon.</p>
         </DashboardCard>
+        {renderAnalyticsModal()}
       </CardGrid>
     );
   }
@@ -486,7 +599,7 @@ const Dashboard = () => {
       <CardGrid>
         <DashboardCard>
           <h3>Students Supervised</h3>
-          <div className="stat">0</div>
+          <div className="stat">{studentsSupervised}</div>
           <p>Students under your guidance</p>
           <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => navigate('/faculty-profile')}>
             Update Profile
@@ -508,11 +621,90 @@ const Dashboard = () => {
           </Button>
         </DashboardCard>
 
-        <DashboardCard>
+        <DashboardCard style={{ gridColumn: '1 / -1' }}>
           <h3>Student Activity</h3>
-          <p>Recent applications from your students will appear here.</p>
+          {deptApplications.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1rem' }}>
+              {deptApplications.slice(0, 5).map(app => (
+                <div key={app.id} style={{ padding: '0.75rem', border: '1px solid #eee', borderRadius: '6px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <span style={{ fontWeight: '600', color: '#111827' }}>{app.studentName}</span>
+                    <span style={{ color: '#6b7280', fontSize: '0.9rem', marginLeft: '0.5rem' }}>applied for</span>
+                    <span style={{ fontWeight: '500', color: '#4b5563', marginLeft: '0.5rem' }}>{app.companyName}</span>
+                  </div>
+                  <span style={{
+                    padding: '0.25rem 0.5rem',
+                    borderRadius: '999px',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    backgroundColor: (app.status === 'REJECTED' || app.facultyApprovalStatus === 'REJECTED') ? '#fee2e2' : app.status === 'SELECTED' ? '#dbeafe' : (app.status === 'APPROVED' || app.facultyApprovalStatus === 'APPROVED') ? '#d1fae5' : '#fef3c7',
+                    color: (app.status === 'REJECTED' || app.facultyApprovalStatus === 'REJECTED') ? '#991b1b' : app.status === 'SELECTED' ? '#1e40af' : (app.status === 'APPROVED' || app.facultyApprovalStatus === 'APPROVED') ? '#065f46' : '#92400e'
+                  }}>
+                    {(app.status === 'REJECTED' || app.facultyApprovalStatus === 'REJECTED') ? 'Rejected' : app.status === 'SELECTED' ? 'Selected' : (app.status === 'APPROVED' || app.facultyApprovalStatus === 'APPROVED') ? 'Accepted' : 'Applied'}
+                  </span>
+                </div>
+              ))}
+              {deptApplications.length > 5 && <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.9rem' }}>+ {deptApplications.length - 5} more</p>}
+            </div>
+          ) : (
+            <p>No recent activity from your students.</p>
+          )}
         </DashboardCard>
       </CardGrid>
+    );
+  }
+
+
+
+  // Student Application List Modal
+  function renderStudentApplicationsModal() {
+    if (!studentAppsOpen || user?.role !== 'STUDENT') return null;
+
+    return (
+      <ModalOverlay onClick={() => setStudentAppsOpen(false)}>
+        <ModalContent onClick={e => e.stopPropagation()}>
+          <CloseButton onClick={() => setStudentAppsOpen(false)}>&times;</CloseButton>
+          <h2>My Applications</h2>
+          {studentApps.length === 0 ? (
+            <p>You haven't submitted any applications yet.</p>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              {studentApps.map(app => (
+                <div key={app.id} style={{
+                  padding: '1rem',
+                  border: '1px solid #eee',
+                  borderRadius: '8px',
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  background: '#f9fafb'
+                }}>
+                  <div>
+                    <h4 style={{ margin: '0 0 0.25rem 0', color: '#111827' }}>{app.companyName || 'Unknown Company'}</h4>
+                    <p style={{ margin: 0, color: '#6b7280', fontSize: '0.9rem' }}>{app.opportunityTitle || 'Internship Opportunity'}</p>
+                    <p style={{ margin: '0.25rem 0 0 0', color: '#9ca3af', fontSize: '0.8rem' }}>Applied on: {new Date(app.appliedAt).toLocaleDateString()}</p>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <span style={{
+                      padding: '0.25rem 0.75rem',
+                      borderRadius: '999px',
+                      fontSize: '0.875rem',
+                      fontWeight: '600',
+                      backgroundColor: (app.status === 'REJECTED' || app.facultyApprovalStatus === 'REJECTED') ? '#fee2e2' : app.status === 'SELECTED' ? '#dbeafe' : (app.status === 'APPROVED' || app.facultyApprovalStatus === 'APPROVED') ? '#d1fae5' : '#fef3c7',
+                      color: (app.status === 'REJECTED' || app.facultyApprovalStatus === 'REJECTED') ? '#991b1b' : app.status === 'SELECTED' ? '#1e40af' : (app.status === 'APPROVED' || app.facultyApprovalStatus === 'APPROVED') ? '#065f46' : '#92400e'
+                    }}>
+                      {(app.status === 'REJECTED' || app.facultyApprovalStatus === 'REJECTED') ? 'Rejected' : app.status === 'SELECTED' ? 'Selected' : (app.status === 'APPROVED' || app.facultyApprovalStatus === 'APPROVED') ? 'Accepted' : 'Applied'}
+                    </span>
+                    <Button variant="outline" style={{ padding: '0.25rem 0.5rem', fontSize: '0.8rem' }} onClick={() => navigate('/opportunities')}>
+                      View
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </ModalContent>
+      </ModalOverlay>
     );
   }
 
@@ -527,46 +719,56 @@ const Dashboard = () => {
       profile.resumeUrl !== 'pending_upload';
 
     return (
-      <CardGrid>
-        <DashboardCard>
-          <h3>Applications</h3>
-          <div className="stat">{studentApplicationsCount}</div>
-          <p>
-            {studentApplicationsCount > 0
-              ? 'Applications submitted'
-              : "You haven't submitted any internship applications yet."}
-          </p>
-          <Button variant="primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => navigate('/opportunities')}>
-            Browse Opportunities
-          </Button>
-        </DashboardCard>
-
-        <DashboardCard>
-          <h3>Profile Status</h3>
-          {isProfileComplete ? (
-            <>
-              <div className="stat" style={{ color: '#10b981', fontSize: '1.5rem' }}>Active</div>
-              <p>Your profile is complete and ready for applications.</p>
-              <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => navigate('/profile')}>
-                View Profile
+      <>
+        {renderStudentApplicationsModal()}
+        <CardGrid>
+          <DashboardCard>
+            <h3>Applications</h3>
+            <div className="stat">{studentApplicationsCount}</div>
+            <p>
+              {studentApplicationsCount > 0
+                ? 'Applications submitted'
+                : "You haven't submitted any internship applications yet."}
+            </p>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Button variant="primary" style={{ flex: 1, justifyContent: 'center' }} onClick={() => navigate('/opportunities')}>
+                Browse
               </Button>
-            </>
-          ) : (
-            <>
-              <div className="stat" style={{ color: '#f59e0b', fontSize: '1.5rem' }}>Pending</div>
-              <p>Your profile is incomplete. Please update your Department, Skills, and Resume.</p>
-              <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => navigate('/profile')}>
-                Complete Profile
-              </Button>
-            </>
-          )}
-        </DashboardCard>
+              {studentApplicationsCount > 0 && (
+                <Button variant="outline" style={{ flex: 1, justifyContent: 'center' }} onClick={() => setStudentAppsOpen(true)}>
+                  Track Status
+                </Button>
+              )}
+            </div>
+          </DashboardCard>
 
-        <DashboardCard>
-          <h3>Upcoming Deadlines</h3>
-          <p>No upcoming deadlines for your department.</p>
-        </DashboardCard>
-      </CardGrid>
+          <DashboardCard>
+            <h3>Profile Status</h3>
+            {isProfileComplete ? (
+              <>
+                <div className="stat" style={{ color: '#10b981', fontSize: '1.5rem' }}>Active</div>
+                <p>Your profile is complete and ready for applications.</p>
+                <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => navigate('/profile')}>
+                  View Profile
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="stat" style={{ color: '#f59e0b', fontSize: '1.5rem' }}>Pending</div>
+                <p>Your profile is incomplete. Please update your Department, Skills, and Resume.</p>
+                <Button variant="outline" style={{ width: '100%', justifyContent: 'center' }} onClick={() => navigate('/profile')}>
+                  Complete Profile
+                </Button>
+              </>
+            )}
+          </DashboardCard>
+
+          <DashboardCard>
+            <h3>Upcoming Deadlines</h3>
+            <p>No upcoming deadlines for your department.</p>
+          </DashboardCard>
+        </CardGrid>
+      </>
     );
   }
 
@@ -584,20 +786,26 @@ const Dashboard = () => {
       const appPromises = opportunities.map(async (opp) => {
         const appsRes = await ApplicationService.getApplicationsForOpportunity(opp.id);
         const apps = appsRes.data || [];
-        const enriched = await Promise.all(apps.map(async (app) => {
-          try {
-            const profileRes = await UserService.getStudentProfile(app.studentId);
-            return { application: app, opportunity: opp, student: profileRes.data };
-          } catch (e) {
-            return { application: app, opportunity: opp, student: null };
+        // Use DTO fields directly instead of making extra API calls
+        return apps.map(app => ({
+          application: app,
+          opportunity: opp,
+          student: {
+            fullName: app.studentName,
+            rollNumber: app.studentRollNumber,
+            department: app.studentDepartment,
+            cgpa: app.studentCgpa
           }
         }));
-        return enriched;
       });
 
       const nested = await Promise.all(appPromises);
       const flat = nested.flat();
-      setAppsData(flat);
+
+      // Filter: Only show applications that are APPROVED by Faculty
+      const filtered = flat.filter(item => item.application.facultyApprovalStatus === 'APPROVED');
+
+      setAppsData(filtered);
     } catch (err) {
       console.error("Failed to load applications", err);
       setAppsError('Failed to load applications. Please try again.');
@@ -623,19 +831,45 @@ const Dashboard = () => {
       const approvals = approvalsRes.data || [];
 
       const enriched = await Promise.all(approvals.map(async (app) => {
-        const [studentRes, oppRes] = await Promise.allSettled([
-          UserService.getStudentProfile(app.studentId),
-          OpportunityService.getOpportunityById(app.opportunityId),
-        ]);
+        let opportunity = null;
+        try {
+          const oppRes = await OpportunityService.getOpportunityById(app.opportunityId);
+          opportunity = oppRes.data;
+        } catch (e) {
+          console.error("Failed to fetch opportunity details", e);
+        }
 
         return {
           application: app,
-          student: studentRes.status === 'fulfilled' ? studentRes.value.data : null,
-          opportunity: oppRes.status === 'fulfilled' ? oppRes.value.data : null,
+          // Use DTO fields for student
+          student: {
+            fullName: app.studentName,
+            rollNumber: app.studentRollNumber,
+            department: app.studentDepartment,
+            cgpa: app.studentCgpa
+          },
+          opportunity: opportunity
         };
       }));
 
       setFacultyApprovals(enriched);
+
+      // Fetch Students Supervised Count
+      try {
+        const studentsRes = await UserService.getStudentsByDepartment(facultyProfile.department);
+        setStudentsSupervised(studentsRes.data ? studentsRes.data.length : 0);
+      } catch (e) {
+        console.error("Failed to fetch supervised students count", e);
+      }
+
+      // Fetch Department Applications (Student Activity)
+      try {
+        const deptAppsRes = await ApplicationService.getApplicationsByDepartment(facultyProfile.department);
+        setDeptApplications(deptAppsRes.data || []);
+      } catch (e) {
+        console.error("Failed to fetch department applications", e);
+      }
+
     } catch (err) {
       console.error("Failed to load faculty approvals", err);
       setFacultyError('Failed to load approvals. Please try again.');
@@ -661,16 +895,27 @@ const Dashboard = () => {
       const approvalsRes = await ApplicationService.getPendingFacultyApprovals(facultyProfile?.id);
       const approvals = approvalsRes.data || [];
       const enriched = await Promise.all(approvals.map(async (app) => {
-        const [studentRes, oppRes] = await Promise.allSettled([
-          UserService.getStudentProfile(app.studentId),
-          OpportunityService.getOpportunityById(app.opportunityId),
-        ]);
+        let opportunity = null;
+        try {
+          const oppRes = await OpportunityService.getOpportunityById(app.opportunityId);
+          opportunity = oppRes.data;
+        } catch (e) {
+          console.error("Failed to fetch opportunity details", e);
+        }
+
         return {
           application: app,
-          student: studentRes.status === 'fulfilled' ? studentRes.value.data : null,
-          opportunity: oppRes.status === 'fulfilled' ? oppRes.value.data : null,
+          // Use DTO fields for student
+          student: {
+            fullName: app.studentName,
+            rollNumber: app.studentRollNumber,
+            department: app.studentDepartment,
+            cgpa: app.studentCgpa
+          },
+          opportunity: opportunity
         };
       }));
+      setFacultyApprovals(enriched);
       setFacultyApprovals(enriched);
     } catch (err) {
       console.error("Failed to update approval", err);

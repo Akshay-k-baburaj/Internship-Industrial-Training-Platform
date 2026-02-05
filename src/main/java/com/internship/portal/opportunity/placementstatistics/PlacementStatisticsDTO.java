@@ -11,4 +11,6 @@ public class PlacementStatisticsDTO {
     private Long selectedStudents;
     private Long rejectedApplications;
     private Double acceptanceRate;
+    private Double avgCgpa;
+    private Long totalStudentsApplied;
 }

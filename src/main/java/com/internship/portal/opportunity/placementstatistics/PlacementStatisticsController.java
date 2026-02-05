@@ -14,7 +14,8 @@ public class PlacementStatisticsController {
     private PlacementStatisticsService statisticsService;
 
     @GetMapping("/{placementCellUserId}")
-    public ResponseEntity<PlacementStatisticsDTO> getStatistics(@PathVariable Long placementCellUserId) {
+    public ResponseEntity<PlacementStatisticsDTO> getStatistics(
+            @PathVariable("placementCellUserId") Long placementCellUserId) {
         return ResponseEntity.ok(statisticsService.getStatistics(placementCellUserId));
     }
 }

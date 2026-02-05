@@ -18,27 +18,27 @@ public class StudentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StudentDTO> updateStudent(@PathVariable Long id, @RequestBody StudentDTO dto) {
+    public ResponseEntity<StudentDTO> updateStudent(@PathVariable("id") Long id, @RequestBody StudentDTO dto) {
         return ResponseEntity.ok(studentService.updateStudent(id, dto));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<StudentDTO> getStudent(@PathVariable Long id) {
+    public ResponseEntity<StudentDTO> getStudent(@PathVariable("id") Long id) {
         return ResponseEntity.ok(studentService.getStudentById(id));
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<StudentDTO> getStudentByUserId(@PathVariable Long userId) {
+    public ResponseEntity<StudentDTO> getStudentByUserId(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(studentService.getStudentByUserId(userId));
     }
 
     @GetMapping("/roll/{rollNumber}")
-    public ResponseEntity<StudentDTO> getStudentByRollNumber(@PathVariable String rollNumber) {
+    public ResponseEntity<StudentDTO> getStudentByRollNumber(@PathVariable("rollNumber") String rollNumber) {
         return ResponseEntity.ok(studentService.getStudentByRollNumber(rollNumber));
     }
 
     @GetMapping("/department/{department}")
-    public ResponseEntity<List<StudentDTO>> getStudentsByDepartment(@PathVariable String department) {
+    public ResponseEntity<List<StudentDTO>> getStudentsByDepartment(@PathVariable("department") String department) {
         return ResponseEntity.ok(studentService.getStudentsByDepartment(department));
     }
 

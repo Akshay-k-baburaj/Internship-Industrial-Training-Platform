@@ -20,7 +20,7 @@ import java.util.function.Function;
 @Slf4j
 public class JwtTokenProvider {
 
-    @Value("${jwt.secret}")
+    @Value("${app.jwt-unique-secret}")
     private String secret;
 
     @Value("${jwt.expiration}")

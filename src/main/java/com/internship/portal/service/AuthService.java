@@ -50,7 +50,8 @@ public class AuthService {
 
                 // Only allow self-registration for students
                 if (request.getRole() == null || request.getRole() != com.internship.portal.user.Role.STUDENT) {
-                        throw new RuntimeException("Only students can self-register. Faculty and placement cell accounts must be created by an admin.");
+                        throw new RuntimeException(
+                                        "Only students can self-register. Faculty and placement cell accounts must be created by an admin.");
                 }
 
                 // Create new user
@@ -83,8 +84,9 @@ public class AuthService {
                                 studentRepository.save(student);
                                 log.info("Student profile created for user ID: {}", savedUser.getId());
                         } catch (Exception e) {
+                                System.err.println("FAILED TO SAVE STUDENT PROFILE: " + e.getMessage());
+                                e.printStackTrace();
                                 log.error("Failed to create student profile: {}", e.getMessage());
-                                // Don't fail registration if student profile creation fails, but log it
                         }
                 }
 

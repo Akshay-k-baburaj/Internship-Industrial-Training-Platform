@@ -19,22 +19,22 @@ public class OpportunityController {
     @PostMapping
     public ResponseEntity<OpportunityDTO> createOpportunity(
             @RequestBody OpportunityDTO dto,
-            @RequestParam Long postedById) {
+            @RequestParam("postedById") Long postedById) {
         return ResponseEntity.ok(opportunityService.createOpportunity(dto, postedById));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<OpportunityDTO> updateOpportunity(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @RequestBody OpportunityDTO dto,
-            @RequestParam Long postedById) {
+            @RequestParam("postedById") Long postedById) {
         return ResponseEntity.ok(opportunityService.updateOpportunity(id, dto, postedById));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOpportunity(
-            @PathVariable Long id,
-            @RequestParam Long postedById) {
+            @PathVariable("id") Long id,
+            @RequestParam("postedById") Long postedById) {
         opportunityService.deleteOpportunity(id, postedById);
         return ResponseEntity.noContent().build();
     }
@@ -45,12 +45,12 @@ public class OpportunityController {
     }
 
     @GetMapping("/placementcell/{userId}")
-    public ResponseEntity<List<OpportunityDTO>> getOpportunitiesByPlacementCell(@PathVariable Long userId) {
+    public ResponseEntity<List<OpportunityDTO>> getOpportunitiesByPlacementCell(@PathVariable("userId") Long userId) {
         return ResponseEntity.ok(opportunityService.getOpportunitiesByPlacementCell(userId));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OpportunityDTO> getOpportunityById(@PathVariable Long id) {
+    public ResponseEntity<OpportunityDTO> getOpportunityById(@PathVariable("id") Long id) {
         return ResponseEntity.ok(opportunityService.getOpportunityById(id));
     }
 }

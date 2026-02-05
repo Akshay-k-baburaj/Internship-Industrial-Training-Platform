@@ -1,0 +1,59 @@
+{
+  "properties": [
+    {
+      "name": "jwt.secret",
+      "type": "java.lang.String",
+      "description": "Secret key for JWT generation."
+    },
+    {
+      "name": "jwt.expiration",
+      "type": "java.lang.Long",
+      "description": "JWT expiration time in milliseconds."
+    },
+    {
+      "name": "jwt.refresh-expiration",
+      "type": "java.lang.Long",
+      "description": "JWT refresh token expiration time in milliseconds."
+    },
+    {
+      "name": "cors.allowed-origins",
+      "type": "java.lang.String",
+      "description": "Comma-separated list of allowed origins for CORS."
+    },
+    {
+      "name": "cors.allowed-methods",
+      "type": "java.lang.String",
+      "description": "Comma-separated list of allowed HTTP methods for CORS."
+    },
+    {
+      "name": "cors.allowed-headers",
+      "type": "java.lang.String",
+      "description": "Comma-separated list of allowed headers for CORS."
+    },
+    {
+      "name": "cors.allow-credentials",
+      "type": "java.lang.Boolean",
+      "description": "Whether to allow credentials in CORS requests."
+    },
+    {
+      "name": "cors.max-age",
+      "type": "java.lang.Long",
+      "description": "Max age for CORS preflight requests in seconds."
+    },
+    {
+      "name": "app.backend.url",
+      "type": "java.lang.String",
+      "description": "Base URL of the backend application."
+    },
+    {
+      "name": "file.upload.resume-dir",
+      "type": "java.lang.String",
+      "description": "Directory to store uploaded resumes."
+    },
+    {
+      "name": "file.upload.profile-dir",
+      "type": "java.lang.String",
+      "description": "Directory to store uploaded profile pictures."
+    }
+  ]
+}

@@ -81,7 +81,7 @@ public class AuthController {
 
     @GetMapping("/hash-password")
     @Operation(summary = "Hash Password (DEBUG)", description = "Generate BCrypt hash for debugging")
-    public ResponseEntity<String> hashPassword(@RequestParam String password) {
+    public ResponseEntity<String> hashPassword(@RequestParam("password") String password) {
         return ResponseEntity.ok(passwordEncoder.encode(password));
     }
 }

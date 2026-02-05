@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
-                        .requestMatchers("/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
@@ -47,7 +47,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/opportunities/**").permitAll()
 
                         // Student endpoints
-                        .requestMatchers("/api/v1/students/**").hasAnyRole("STUDENT", "ADMIN")
+                        .requestMatchers("/api/v1/students/**")
+                        .hasAnyRole("STUDENT", "FACULTY", "PLACEMENT_CELL", "ADMIN")
 
                         // Faculty endpoints
                         .requestMatchers("/api/v1/faculty/**").hasAnyRole("FACULTY", "ADMIN")

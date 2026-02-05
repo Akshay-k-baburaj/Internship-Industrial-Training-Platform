@@ -81,83 +81,83 @@ const LinkText = styled.p`
 `;
 
 const Register = () => {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [role, setRole] = useState('STUDENT');
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [role] = useState('STUDENT');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        setError('');
-        setLoading(true);
+  const handleRegister = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
-        try {
-            await AuthService.register(email, password, role);
-            navigate('/dashboard'); // Redirect to dashboard on success
-        } catch (err) {
-            setError(err.response?.data?.message || 'Registration failed. Please try again.');
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      await AuthService.register(email, password, role);
+      navigate('/dashboard'); // Redirect to dashboard on success
+    } catch (err) {
+      setError(err.response?.data?.message || 'Registration failed. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    return (
-        <Container>
-            <FormCard>
-                <Title>Create Account</Title>
-                <form onSubmit={handleRegister}>
-                    <InputGroup>
-                        <label>Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                            placeholder="student@university.edu"
-                        />
-                    </InputGroup>
+  return (
+    <Container>
+      <FormCard>
+        <Title>Create Account</Title>
+        <form onSubmit={handleRegister}>
+          <InputGroup>
+            <label>Email Address</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              placeholder="student@university.edu"
+            />
+          </InputGroup>
 
-                    <InputGroup>
-                        <label>Password</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                            placeholder="••••••••"
-                            minLength={6}
-                        />
-                    </InputGroup>
+          <InputGroup>
+            <label>Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              placeholder="••••••••"
+              minLength={6}
+            />
+          </InputGroup>
 
-                    <InputGroup>
-                        <label>Role</label>
-                        <input
-                            type="text"
-                            value="Student"
-                            disabled
-                        />
-                    </InputGroup>
+          <InputGroup>
+            <label>Role</label>
+            <input
+              type="text"
+              value="Student"
+              disabled
+            />
+          </InputGroup>
 
-                    {error && <ErrorMessage>{error}</ErrorMessage>}
+          {error && <ErrorMessage>{error}</ErrorMessage>}
 
-                    <Button
-                        variant="primary"
-                        type="submit"
-                        style={{ width: '100%', justifyContent: 'center' }}
-                        disabled={loading}
-                    >
-                        {loading ? 'Creating Account...' : 'Register'}
-                    </Button>
-                </form>
+          <Button
+            variant="primary"
+            type="submit"
+            style={{ width: '100%', justifyContent: 'center' }}
+            disabled={loading}
+          >
+            {loading ? 'Creating Account...' : 'Register'}
+          </Button>
+        </form>
 
-                <LinkText>
-                    Already have an account? <Link to="/login">Login here</Link>
-                </LinkText>
-            </FormCard>
-        </Container>
-    );
+        <LinkText>
+          Already have an account? <Link to="/login">Login here</Link>
+        </LinkText>
+      </FormCard>
+    </Container>
+  );
 };
 
 export default Register;

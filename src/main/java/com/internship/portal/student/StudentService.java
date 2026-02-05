@@ -48,20 +48,31 @@ public class StudentService {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
+        if (dto.getRollNumber() != null && !dto.getRollNumber().equals(student.getRollNumber())) {
+            if (studentRepository.findByRollNumber(dto.getRollNumber()).isPresent()) {
+                throw new RuntimeException("Roll Number already exists: " + dto.getRollNumber());
+            }
+            student.setRollNumber(dto.getRollNumber());
+        }
+
         student.setFullName(dto.getFullName());
-        student.setRollNumber(dto.getRollNumber()); // Allow updating roll number if needed
-        student.setDepartment(dto.getDepartment()); // FIX: Update Department
-        student.setSemester(dto.getSemester()); // FIX: Update Semester
+        student.setDepartment(dto.getDepartment());
+        student.setSemester(dto.getSemester());
         student.setCgpa(dto.getCgpa());
         student.setPhone(dto.getPhone());
         student.setSkills(dto.getSkills());
+        student.setResumeUrl(dto.getResumeUrl());
         student.setProfileImageUrl(dto.getProfileImageUrl());
         student.setGithubUrl(dto.getGithubUrl());
         student.setLinkedinUrl(dto.getLinkedinUrl());
         student.setPortfolioUrl(dto.getPortfolioUrl());
 
-        Student updated = studentRepository.save(student);
-        return mapToDTO(updated);
+        try {
+            Student updated = studentRepository.save(student);
+            return mapToDTO(updated);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            throw new RuntimeException("Error updating profile. Duplicate Roll Number or other constraint violation.");
+        }
     }
 
     public StudentDTO getStudentById(Long id) {
@@ -71,9 +82,18 @@ public class StudentService {
     }
 
     public StudentDTO getStudentByUserId(Long userId) {
-        Student student = studentRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Student not found"));
-        return mapToDTO(student);
+        try {
+            com.internship.portal.student.Student student = studentRepository.findByUser_Id(userId)
+                    .orElseThrow(() -> new com.internship.portal.exception.ResourceNotFoundException("Student",
+                            "userId", userId));
+            return mapToDTO(student);
+        } catch (com.internship.portal.exception.ResourceNotFoundException e) {
+            throw e; // Rethrow 404 as is
+        } catch (Exception e) {
+            System.err.println("CRITICAL ERROR FETCHING STUDENT PROFILE: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     public StudentDTO getStudentByRollNumber(String rollNumber) {

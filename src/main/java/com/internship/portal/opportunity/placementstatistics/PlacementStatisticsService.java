@@ -27,14 +27,30 @@ public class PlacementStatisticsService {
         long selectedCount = 0;
         long rejectedCount = 0;
 
+        double totalCgpa = 0.0;
+        long placedCountWithCgpa = 0;
+        java.util.Set<Long> uniqueStudentIds = new java.util.HashSet<>();
+
         for (Opportunity opp : opportunities) {
             List<Application> apps = applicationRepository.findByOpportunityId(opp.getId());
             totalApplications += apps.size();
-            selectedCount += apps.stream().filter(a -> a.getStatus() == ApplicationStatus.SELECTED).count();
-            rejectedCount += apps.stream().filter(a -> a.getStatus() == ApplicationStatus.REJECTED).count();
+
+            for (Application app : apps) {
+                uniqueStudentIds.add(app.getStudent().getId());
+                if (app.getStatus() == ApplicationStatus.SELECTED) {
+                    selectedCount++;
+                    if (app.getStudent().getCgpa() != null) {
+                        totalCgpa += app.getStudent().getCgpa().doubleValue();
+                        placedCountWithCgpa++;
+                    }
+                } else if (app.getStatus() == ApplicationStatus.REJECTED) {
+                    rejectedCount++;
+                }
+            }
         }
 
         double acceptanceRate = totalApplications > 0 ? (double) selectedCount / totalApplications * 100 : 0;
+        double avgCgpa = placedCountWithCgpa > 0 ? totalCgpa / placedCountWithCgpa : 0.0;
 
         PlacementStatisticsDTO stats = new PlacementStatisticsDTO();
         stats.setTotalOpportunities((long) opportunities.size());
@@ -42,6 +58,8 @@ public class PlacementStatisticsService {
         stats.setSelectedStudents(selectedCount);
         stats.setRejectedApplications(rejectedCount);
         stats.setAcceptanceRate(acceptanceRate);
+        stats.setAvgCgpa(avgCgpa);
+        stats.setTotalStudentsApplied((long) uniqueStudentIds.size());
 
         return stats;
     }
